@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Új résztvevő hozzáadása</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="logo-link">
+        SN
+    </a>
+    <a href="/favorites" class="nav-link">
+        <i class="nav-icon">⭐</i> KEDVENCEK
+        <span class="favorite-count-badge" th:text="${favoriteCount}"></span>
+    </a>
+    <a href="/football" class="nav-link"><i class="nav-icon">⚽</i> LABDARÚGÁS</a>
+    <a href="/basketball" class="nav-link"><i class="nav-icon">🏀</i> KOSÁRLABDA</a>
+    <a href="/running" class="nav-link"><i class="nav-icon">🏃</i> FUTÁS</a>
+    <a href="/tennis" class="nav-link"><i class="nav-icon">🎾</i> TENISZ</a>
+    <a href="/swimming" class="nav-link"><i class="nav-icon">🏊</i> ÚSZÁS</a>
+    <a href="/volleyball" class="nav-link"><i class="nav-icon">🏐</i> RÖPLABDA</a>
+    <a href="/handball" class="nav-link"><i class="nav-icon">🤾</i> KÉZILABDA</a>
+    <a href="/icehockey" class="nav-link"><i class="nav-icon">🏒</i> JÉGKORONG</a>
+    <a href="/cycling" class="nav-link"><i class="nav-icon">🚴</i> KERÉKPÁROZÁS</a>
+    <a href="/fencing" class="nav-link"><i class="nav-icon">🤺</i> VÍVÁS</a>
+    <a href="/tabletennis" class="nav-link"><i class="nav-icon">🏓</i> ASZTALITENISZ</a>
+</nav>
+
+<div class="main-content">
+    <div class="sidebar">
+        <div class="sidebar-header"><i>📊</i> ESEMÉNYEK</div>
+        <div class="category-item " onclick="window.location.href='/'"><i>📅</i> Összes esemény</div>
+        <div class="category-item " onclick="window.location.href='/upcoming-events'"><i>🗓️</i> Közelgő események</div>
+        <div class="category-item " onclick="window.location.href='/completed-events'"><i>✅</i> Teljesített események</div>
+        <div class="category-item " onclick="window.location.href='/add'"><i>➕</i> Új résztvevő</div>
+
+    </div>
+
+    <div class="content">
+        <div th:if="${param.error} != null" class="error-message">
+            <span th:if="${param.error[0]} == 'invalidAge'">Az életkor csak 0 és 99 között lehet!</span>
+            <span th:if="${param.error[0]} == 'noEvent'">Kérlek válassz ki egy meglévő eseményt vagy adj meg egy újat!</span>
+        </div>
+
+        <div class="add-participant-container">
+            <h2>Új résztvevő hozzáadása</h2>
+
+            <form action="#" th:action="@{/add-participant}" th:object="${participant}" method="post">
+                <label for="name">Név:</label>
+                <input type="text" th:field="*{name}" id="name" required><br>
+
+                <label for="age">Életkor:</label>
+                <input type="number" th:field="*{age}" id="age" min="0" max="99" required><br>
+
+                <label for="email">Email:</label>
+                <input type="email"
+                       th:field="*{email}"
+                       id="email"
+                       pattern=".*\.(com|hu)$"
+                       title="Az e-mail végződése .com vagy .hu kell legyen."
+                       required><br>
+                <div th:if="${#fields.hasErrors('email')}" class="text-danger">
+                    <p th:errors="*{email}">Hibás e-mail</p>
+                </div>
+
+
+
+                <label for="activityDate">Aktivitás dátuma:</label>
+                <input type="date" th:field="*{activityDate}" id="activityDate" required><br>
+
+                <label for="categorySelect">Sportág:</label>
+                <select id="categorySelect" name="category" required>
+                    <option value="">-- Válassz sportágat --</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                </select><br>
+
+                <label for="eventSelect">Esemény kiválasztása:</label>
+                <select th:field="*{event.id}" id="eventSelect">
+                    <option value="">-- Válassz meglévőt vagy hagyd üresen újhoz --</option>
+                    <option th:each="ev : ${events}"
+                            th:data-cat="${ev.category}"
+                            th:value="${ev.id}"
+                            th:text="${ev.name + ' – ' + #temporals.format(ev.date, 'yyyy.MM.dd')}">
+                    </option>
+                </select><br>
+
+                <label for="newEventName">Új esemény neve:</label>
+                <input type="text" id="newEventName" name="newEventName"><br>
+
+                <label for="newEventLocation">Új esemény helyszíne:</label>
+                <input type="text" id="newEventLocation" name="newEventLocation"><br>
+
+                <button type="submit">Résztvevő mentése</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const categorySelect = document.getElementById('categorySelect');
+    const eventSelect = document.getElementById('eventSelect');
+    const newEventName = document.getElementById('newEventName');
+    const newEventLocation = document.getElementById('newEventLocation');
+    const activityDate = document.getElementById('activityDate');
+
+    categorySelect.addEventListener('change', function () {
+        const selectedCategory = this.value;
+        Array.from(eventSelect.options).forEach(option => {
+            if (!option.value) return;
+            const category = option.getAttribute('data-cat');
+            option.style.display = (category === selectedCategory) ? 'block' : 'none';
+        });
+        eventSelect.value = "";
+    });
+
+    function toggleEventSelect() {
+        const hasNew = newEventName.value.trim() !== "" || newEventLocation.value.trim() !== "";
+        eventSelect.disabled = hasNew;
+        activityDate.disabled = false;
+        if (hasNew) {
+            eventSelect.value = "";
+        }
+    }
+
+    newEventName.addEventListener('input', toggleEventSelect);
+    newEventLocation.addEventListener('input', toggleEventSelect);
+
+    eventSelect.addEventListener('change', function () {
+        const disabled = this.value !== "";
+        newEventName.disabled = disabled;
+        newEventLocation.disabled = disabled;
+        activityDate.disabled = disabled;
+        if (disabled) {
+            newEventName.value = "";
+            newEventLocation.value = "";
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Résztvevő szerkesztése</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="add-participant-container">
+    <h2>Résztvevő szerkesztése</h2>
+
+    <form th:action="@{'/updateParticipant/' + ${participant.id}}" th:object="${participant}" method="post">
+        <label for="name">Név:</label>
+        <input type="text" th:field="*{name}" id="name" required><br>
+
+        <label for="age">Életkor:</label>
+        <input type="number" th:field="*{age}" id="age" min="0" max="99" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email"
+               th:field="*{email}"
+               id="email"
+               pattern=".*\.(com|hu)$"
+               title="Az e-mail végződése .com vagy .hu kell legyen."
+               required><br>
+
+        <div th:if="${#fields.hasErrors('email')}" class="text-danger">
+            <p th:errors="*{email}">Hibás e-mail</p>
+        </div>
+
+
+        <label for="activityDate">Aktivitás dátuma:</label>
+        <input type="date" th:field="*{activityDate}" id="activityDate" required><br>
+
+        <label for="categorySelect">Sportág:</label>
+        <select id="categorySelect" name="category" required>
+            <option value="">-- Válassz sportágat --</option>
+            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                    th:selected="${participant.event?.category == cat}"></option>
+        </select><br>
+
+        <label for="eventSelect">Esemény kiválasztása:</label>
+        <select th:field="*{event.id}" id="eventSelect">
+            <option value="">-- Válassz meglévőt vagy hagyd üresen újhoz --</option>
+            <option th:each="ev : ${events}"
+                    th:data-cat="${ev.category}"
+                    th:value="${ev.id}"
+                    th:text="${ev.name + ' – ' + #temporals.format(ev.date, 'yyyy.MM.dd')}"
+                    th:selected="${participant.event?.id == ev.id}">
+            </option>
+        </select><br>
+
+        <label for="newEventName">Új esemény neve:</label>
+        <input type="text" id="newEventName" name="newEventName"
+               placeholder="-- hagyd üresen ha nem új --"><br>
+
+        <label for="newEventLocation">Új esemény helyszíne:</label>
+        <input type="text" id="newEventLocation" name="newEventLocation"
+               placeholder="-- hagyd üresen ha nem új --"><br>
+
+        <button type="submit">Mentés</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="/" style="font-weight: bold; color: rebeccapurple;">Vissza</a>
+    </div>
+</div>
+
+<script>
+    const categorySelect = document.getElementById('categorySelect');
+    const eventSelect = document.getElementById('eventSelect');
+    const newEventName = document.getElementById('newEventName');
+    const newEventLocation = document.getElementById('newEventLocation');
+    const activityDate = document.getElementById('activityDate');
+
+    categorySelect.addEventListener('change', function () {
+        const selectedCategory = this.value;
+        Array.from(eventSelect.options).forEach(option => {
+            if (!option.value) return;
+            const category = option.getAttribute('data-cat');
+            option.style.display = (category === selectedCategory) ? 'block' : 'none';
+        });
+        eventSelect.value = "";
+        newEventName.disabled = false;
+        newEventLocation.disabled = false;
+    });
+
+    function toggleEventSelect() {
+        const hasNew = newEventName.value.trim() !== "" || newEventLocation.value.trim() !== "";
+        eventSelect.disabled = hasNew;
+        activityDate.disabled = false;
+        if (hasNew) {
+            eventSelect.value = "";
+        }
+    }
+
+    newEventName.addEventListener('input', toggleEventSelect);
+    newEventLocation.addEventListener('input', toggleEventSelect);
+
+    eventSelect.addEventListener('change', function () {
+        const disabled = this.value !== "";
+        newEventName.disabled = disabled;
+        newEventLocation.disabled = disabled;
+        activityDate.disabled = disabled;
+        if (disabled) {
+            newEventName.value = "";
+            newEventLocation.value = "";
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        categorySelect.dispatchEvent(new Event('change'));
+        eventSelect.dispatchEvent(new Event('change'));
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Teljesített események</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="logo-link">
+        SN
+    </a>
+    <a href="/favorites" class="nav-link">
+        <i class="nav-icon">⭐</i> KEDVENCEK
+        <span class="favorite-count-badge" th:text="${favoriteCount}"></span>
+    </a>
+    <a href="/football" class="nav-link"><i class="nav-icon">⚽</i> LABDARÚGÁS</a>
+    <a href="/basketball" class="nav-link"><i class="nav-icon">🏀</i> KOSÁRLABDA</a>
+    <a href="/running" class="nav-link"><i class="nav-icon">🏃</i> FUTÁS</a>
+    <a href="/tennis" class="nav-link"><i class="nav-icon">🎾</i> TENISZ</a>
+    <a href="/swimming" class="nav-link"><i class="nav-icon">🏊</i> ÚSZÁS</a>
+    <a href="/volleyball" class="nav-link"><i class="nav-icon">🏐</i> RÖPLABDA</a>
+    <a href="/handball" class="nav-link"><i class="nav-icon">🤾</i> KÉZILABDA</a>
+    <a href="/icehockey" class="nav-link"><i class="nav-icon">🏒</i> JÉGKORONG</a>
+    <a href="/cycling" class="nav-link"><i class="nav-icon">🚴</i> KERÉKPÁROZÁS</a>
+    <a href="/fencing" class="nav-link"><i class="nav-icon">🤺</i> VÍVÁS</a>
+    <a href="/tabletennis" class="nav-link"><i class="nav-icon">🏓</i> ASZTALITENISZ</a>
+</nav>
+
+<div class="main-content">
+    <div class="sidebar">
+        <div class="sidebar-header"><i>📊</i> ESEMÉNYEK</div>
+        <div class="category-item" onclick="window.location.href='/'"><i>📅</i> Összes esemény</div>
+        <div class="category-item" onclick="window.location.href='/upcoming-events'"><i>🗓️</i> Közelgő események</div>
+        <div class="category-item" onclick="window.location.href='/completed-events'"><i>✅</i> Teljesített események</div>
+    </div>
+
+    <div class="content">
+        <h2>Teljesített sportesemények</h2>
+        <p>Itt találod az összes lezajlott sporteseményt.</p>
+    </div>
+</div>
+
+</body>
+</html>
